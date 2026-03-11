@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Validador de Cédula Dominicana</title>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: 40px auto; }
+    input { width: 100%; padding: 12px; font-size: 1.2em; }
+    button { margin-top: 10px; padding: 12px 20px; background: #0066cc; color: white; border: none; cursor: pointer; }
+    #resultado { margin-top: 20px; font-size: 1.3em; font-weight: bold; }
+    .correcta { color: green; }
+    .incorrecta { color: red; }
+  </style>
+</head>
+<body>
+
+  <h1>Validador de Cédula (Módulo 10)</h1>
+  <input type="text" id="cedula" placeholder="Ej: 40221708236" maxlength="15">
+  <button onclick="validar()">Validar</button>
+
+  <div id="resultado"></div>
+
+  <script>
+    function validar() {
+      const ced = document.getElementById('cedula').value;
+      const res = validarCedulaDominicana(ced);
+      
+      const div = document.getElementById('resultado');
+      div.className = res.esValida ? 'correcta' : 'incorrecta';
+      div.innerHTML = res.mensaje;
+    }
+
+    // Pega aquí la función validarCedulaDominicana() de la versión 1
+    // ...
+function validarCedulaDominicana(cedula) {
+    // 1. Normalizar: quitar espacios, guiones, puntos, etc.
+    cedula = cedula.replace(/[\s\-.,]/g, '').trim();
+
+    // 2. Validar longitud y que sean solo dígitos
+    if (cedula.length !== 11) {
+        return { esValida: false, mensaje: "La cédula debe tener exactamente 11 dígitos" };
+    }
+    if (!/^\d{11}$/.test(cedula)) {
+        return { esValida: false, mensaje: "La cédula solo debe contener números" };
+    }
+
+    // 3. Tomar los primeros 10 dígitos
+    const digitos = cedula.split('').map(Number);
+    const verificador = digitos[10];
+    let suma = 0;
+
+    // 4. Aplicar multiplicadores (1 y 2 alternados)
+    for (let i = 0; i < 10; i++) {
+        let multiplicador = (i % 2 === 0) ? 1 : 2;  // posición 0 (1ª) → 1, pos 1 (2ª) → 2, etc.
+        let producto = digitos[i] * multiplicador;
+
+        // Si el producto es >= 10, restamos 9 (equivalente a sumar dígitos)
+        if (producto >= 10) {
+            producto -= 9;
+        }
+
+        suma += producto;
+    }
+
+    // 5. Calcular el dígito esperado
+    const digitoEsperado = (10 - (suma % 10)) % 10;
+
+    // 6. Comparar
+    const esValida = digitoEsperado === verificador;
+
+    return {
+        esValida,
+        mensaje: esValida 
+            ? "CÉDULA ES CORRECTA" 
+            : "CÉDULA ES INCORRECTA (dígito verificador no coincide)",
+        digitoCalculado: digitoEsperado,
+        digitoIngresado: verificador
+    };
+}
+  </script>
+
+</body>
+</html>
